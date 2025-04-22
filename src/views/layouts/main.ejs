@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        <%= title %>
+    </title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+
+<body class="bg-gray-100">
+    <header class="bg-blue-600 text-white shadow-md">
+        <nav class="container mx-auto p-4 flex justify-between items-center">
+            <a href="/" class="text-xl font-bold">Quản lý Thư viện</a>
+            <div class="space-x-4 flex items-center">
+                <a href="/" class="hover:bg-blue-700 px-3 py-2 rounded">Trang chủ</a>
+                <a href="/books" class="hover:bg-blue-700 px-3 py-2 rounded">Sách</a>
+                <a href="/borrows" class="hover:bg-blue-700 px-3 py-2 rounded">Yêu cầu Mượn</a>
+                <% if (locals.user) { %>
+                    <% if (locals.user.roleId===1) { %>
+                        <a href="/users/admin" class="hover:bg-blue-700 px-3 py-2 rounded">Bảng Quản trị</a>
+                        <a href="/borrows/admin" class="hover:bg-blue-700 px-3 py-2 rounded">Quản lý Mượn</a>
+                        <% } else if (locals.user.roleId===3) { %>
+                            <a href="/borrows/admin" class="hover:bg-blue-700 px-3 py-2 rounded">Quản lý Mượn</a>
+                            <% } %>
+                                <a href="/users/profile" class="hover:bg-blue-700 px-3 py-2 rounded">Hồ sơ</a>
+                                <span class="text-white px-3 py-2">Xin chào, <%= locals.user.username %></span>
+                                <a href="/users/logout"
+                                    class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600">Đăng xuất</a>
+                                <% } else { %>
+                                    <a href="/users/login" class="hover:bg-blue-700 px-3 py-2 rounded">Đăng nhập</a>
+                                    <a href="/users/register" class="hover:bg-blue-700 px-3 py-2 rounded">Đăng ký</a>
+                                    <% } %>
+            </div>
+        </nav>
+    </header>
+    <main class="container mx-auto p-4">
+        <%- body %>
+    </main>
+</body>
+
+</html>

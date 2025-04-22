@@ -1,0 +1,97 @@
+<h1 class="text-2xl font-bold mb-4">Sách</h1>
+<% if (error) { %>
+    <p class="text-red-500 mb-4"><%- error %></p> <!-- A03: XSS -->
+    <% } %>
+        <form method="GET" action="/books/search" class="mb-6">
+            <div class="flex space-x-2">
+                <input type="text" name="q" placeholder="Tìm kiếm sách" class="border rounded p-2 w-full">
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Tìm
+                    kiếm</button>
+            </div>
+        </form>
+        <% if (books.length===0) { %>
+            <p class="text-red-500 font-bold">Không tìm thấy sách</p>
+            <% } else { %>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <% books.forEach(book=> { %>
+                        <div class="bg-white shadow-md rounded-lg p-4">
+                            <h2 class="text-xl font-semibold">
+                                <%= book.title %>
+                            </h2>
+                            <p class="text-gray-600">Tác giả: <%= book.author %>
+                            </p>
+                            <p class="mt-2"><%- book.description %></p> <!-- A03: XSS -->
+                            <% if (book.quantity===0) { %>
+                                <p class="text-red-500 font-bold mt-2">Hết sách</p>
+                                <% } else { %>
+                                    <p class="mt-2"><strong>Số lượng còn lại:</strong>
+                                        <%= book.quantity %>
+                                    </p>
+                                    <% if (locals.user && locals.user.roleId===2) { %>
+                                        <% const status=borrowStatus.find(s=> s.bookId === book._id.toString()) %>
+                                            <% if (status && status.status==='Đã mượn' ) { %>
+                                                <p class="mt-2"><strong>Trạng thái:</strong> <span
+                                                        class="text-green-500">Đã mượn (số lượng: <%= status.quantity %>
+                                                            cuốn)</span></p>
+                                                <% } else { %>
+                                                    <p class="mt-2"><strong>Trạng thái:</strong> Chưa mượn</p>
+                                                    <div class="mt-4">
+                                                        <button onclick="openModal('<%= book._id %>')"
+                                                            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Mượn</button>
+                                                    </div>
+                                                    <% } %>
+                                                        <% } %>
+                                                            <% } %>
+                                                                <% if (locals.user && (locals.user.roleId===1 ||
+                                                                    locals.user.roleId===3)) { %>
+                                                                    <div class="mt-4 flex space-x-2">
+                                                                        <a href="/books/edit/<%= book.bookId %>"
+                                                                            class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Sửa</a>
+                                                                        <form method="POST"
+                                                                            action="/books/delete/<%= book.bookId %>">
+                                                                            <button type="submit"
+                                                                                class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Xóa</button>
+                                                                        </form>
+                                                                    </div>
+                                                                    <% } %>
+                        </div>
+                        <!-- Modal for borrow form -->
+                        <div id="borrow-modal-<%= book._id %>"
+                            class="fixed inset-0 bg-gray-600 bg-opacity-50 flex items-center justify-center hidden">
+                            <div class="bg-white p-6 rounded-lg shadow-lg max-w-md w-full">
+                                <h2 class="text-xl font-bold mb-4">Mượn Sách: <%= book.title %>
+                                </h2>
+                                <form method="POST" action="/borrows" class="space-y-4">
+                                    <input type="hidden" name="bookId" value="<%= book._id %>">
+                                    <div>
+                                        <label class="block text-gray-700">Số lượng mượn:</label>
+                                        <input type="number" name="quantity" min="1" max="<%= book.quantity %>"
+                                            value="1" class="border rounded p-2 w-full" required>
+                                    </div>
+                                    <div class="flex space-x-2">
+                                        <button type="submit"
+                                            class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Gửi Yêu
+                                            cầu Mượn</button>
+                                        <button type="button" onclick="closeModal('<%= book._id %>')"
+                                            class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600">Hủy</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        <% }) %>
+                </div>
+                <% } %>
+                    <% if (locals.user && (locals.user.roleId===1 || locals.user.roleId===3)) { %>
+                        <a href="/books/add"
+                            class="mt-6 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Thêm
+                            Sách Mới</a>
+                        <% } %>
+
+                            <script>
+                                function openModal(bookId) {
+                                    document.getElementById('borrow-modal-' + bookId).classList.remove('hidden');
+                                }
+                                function closeModal(bookId) {
+                                    document.getElementById('borrow-modal-' + bookId).classList.add('hidden');
+                                }
+                            </script>

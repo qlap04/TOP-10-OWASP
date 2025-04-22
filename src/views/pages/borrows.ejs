@@ -1,0 +1,75 @@
+<h1 class="text-2xl font-bold mb-4">Yêu cầu Mượn</h1>
+<% if (error) { %>
+    <p class="text-red-500 mb-4"><%- error %></p> <!-- A03: XSS -->
+    <% } %>
+
+        <% if (user.roleId===2) { %>
+            <% if (approvedBorrows.length> 0) { %>
+                <h2 class="text-xl font-semibold mb-2">Yêu cầu Mượn Thành công</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                    <% approvedBorrows.forEach(borrow=> { %>
+                        <div class="bg-white shadow-md rounded-lg p-4">
+                            <p><strong>Sách:</strong></p>
+                            <ul class="list-disc pl-5">
+                                <% borrow.books.forEach(book=> { %>
+                                    <li>
+                                        <%= book.bookId.title %> (Số lượng: <%= book.quantity %>)
+                                    </li>
+                                    <% }) %>
+                            </ul>
+                        </div>
+                        <% }) %>
+                </div>
+                <% } %>
+
+                    <% if (rejectedBorrows.length> 0) { %>
+                        <h2 class="text-xl font-semibold mb-2">Yêu cầu Mượn Bị từ chối</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                            <% rejectedBorrows.forEach(borrow=> { %>
+                                <div class="bg-white shadow-md rounded-lg p-4">
+                                    <p><strong>Sách:</strong></p>
+                                    <ul class="list-disc pl-5">
+                                        <% borrow.books.forEach(book=> { %>
+                                            <li>
+                                                <%= book.bookId.title %> (Số lượng: <%= book.quantity %>)
+                                            </li>
+                                            <% }) %>
+                                    </ul>
+                                </div>
+                                <% }) %>
+                        </div>
+                        <% } %>
+                            <% } %>
+
+                                <% if (borrows.length===0) { %>
+                                    <p class="text-red-500 font-bold">Không có yêu cầu mượn</p>
+                                    <% } else { %>
+                                        <h2 class="text-xl font-semibold mb-2">Danh sách Yêu cầu Mượn</h2>
+                                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                            <% borrows.forEach(borrow=> { %>
+                                                <div class="bg-white shadow-md rounded-lg p-4">
+                                                    <p>
+                                                        <strong>Người dùng:</strong>
+                                                        <% if (borrow.userId) { %>
+                                                            <%= borrow.userId.username %> (<%= borrow.userId.email %>)
+                                                                    <% } else { %>
+                                                                        Người dùng không tồn tại
+                                                                        <% } %>
+                                                    </p>
+                                                    <p><strong>Sách:</strong></p>
+                                                    <ul class="list-disc pl-5">
+                                                        <% borrow.books.forEach(book=> { %>
+                                                            <li>
+                                                                <%= book.bookId.title %> (Số lượng: <%= book.quantity %>
+                                                                        )
+                                                            </li>
+                                                            <% }) %>
+                                                    </ul>
+                                                    <p><strong>Trạng thái:</strong>
+                                                        <%= borrow.status==='pending' ? 'Chờ duyệt' :
+                                                            borrow.status==='approved' ? 'Thành công' : 'Bị từ chối' %>
+                                                    </p>
+                                                </div>
+                                                <% }) %>
+                                        </div>
+                                        <% } %>

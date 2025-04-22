@@ -1,0 +1,49 @@
+<h1 class="text-2xl font-bold mb-4">Quản lý Yêu cầu Mượn</h1>
+<% if (error) { %>
+    <p class="text-red-500 mb-4"><%- error %></p> <!-- A03: XSS -->
+    <% } %>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <% borrows.forEach(borrow=> { %>
+                <div class="bg-white shadow-md rounded-lg p-4">
+                    <p>
+                        <strong>Người dùng:</strong>
+                        <% if (borrow.userId) { %>
+                            <%= borrow.userId.username %> (<%= borrow.userId.email %>)
+                                    <% } else { %>
+                                        Người dùng không tồn tại
+                                        <% } %>
+                    </p>
+                    <p><strong>Sách:</strong></p>
+                    <ul class="list-disc pl-5">
+                        <% borrow.books.forEach(book=> { %>
+                            <li>
+                                <%= book.bookId.title %> (Số lượng: <%= book.quantity %>)
+                            </li>
+                            <% }) %>
+                    </ul>
+                    <p><strong>Trạng thái:</strong>
+                        <%= borrow.status==='pending' ? 'Chờ duyệt' : borrow.status==='approved' ? 'Thành công'
+                            : 'Bị từ chối' %>
+                    </p>
+                    <% if (borrow.status==='pending' ) { %>
+                        <form method="POST" action="/borrows/<%= borrow._id %>" class="mt-4">
+                            <div class="flex space-x-2">
+                                <select name="status" class="border rounded p-2">
+                                    <option value="approved">Phê duyệt</option>
+                                    <option value="rejected">Từ chối</option>
+                                </select>
+                                <button type="submit"
+                                    class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Cập nhật Trạng
+                                    thái</button>
+                            </div>
+                        </form>
+                        <% } %>
+                            <% if (borrow.status==='approved' ) { %>
+                                <form method="POST" action="/borrows/delete/<%= borrow._id %>" class="mt-4">
+                                    <button type="submit"
+                                        class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Xóa</button>
+                                </form>
+                                <% } %>
+                </div>
+                <% }) %>
+        </div>

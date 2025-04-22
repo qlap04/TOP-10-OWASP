@@ -1,0 +1,38 @@
+<h1 class="text-2xl font-bold mb-4">Sửa Sách</h1>
+<% if (error) { %>
+    <p class="text-red-500 mb-4"><%- error %></p> <!-- A03: XSS -->
+    <% } %>
+        <% if (book) { %>
+            <form method="POST" action="/books/<%= book.bookId %>" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700">Mã Sách:</label>
+                    <input type="text" name="bookId" value="<%= book.bookId %>" readonly
+                        class="border rounded p-2 w-full bg-gray-200">
+                </div>
+                <div>
+                    <label class="block text-gray-700">Tiêu đề:</label>
+                    <input type="text" name="title" value="<%= book.title %>" required
+                        class="border rounded p-2 w-full">
+                </div>
+                <div>
+                    <label class="block text-gray-700">Tác giả:</label>
+                    <input type="text" name="author" value="<%= book.author %>" required
+                        class="border rounded p-2 w-full">
+                </div>
+                <div>
+                    <label class="block text-gray-700">Mô tả:</label>
+                    <textarea name="description" class="border rounded p-2 w-full"><%= book.description %></textarea>
+                </div>
+                <div>
+                    <label class="block text-gray-700">URL Ảnh bìa:</label>
+                    <input type="text" name="coverUrl" value="<%= book.coverUrl %>" class="border rounded p-2 w-full">
+                </div>
+                <div>
+                    <label class="block text-gray-700">Số lượng:</label>
+                    <input type="number" name="quantity" value="<%= book.quantity %>" min="0" required
+                        class="border rounded p-2 w-full">
+                </div>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Cập nhật
+                    Sách</button>
+            </form>
+            <% } %>

@@ -1,0 +1,8 @@
+<h1 class="text-3xl font-bold mb-4">Chào mừng đến với Quản lý Thư viện</h1>
+<% if (user) { %>
+    <p>Xin chào, <%= user.username %>! Vui lòng khám phá <a href="/books" class="text-blue-500 hover:underline">danh
+                sách sách</a> hoặc xem <a href="/borrows" class="text-blue-500 hover:underline">yêu cầu mượn</a>.</p>
+    <% } else { %>
+        <p>Vui lòng <a href="/users/login" class="text-blue-500 hover:underline">đăng nhập</a> hoặc <a
+                href="/users/register" class="text-blue-500 hover:underline">đăng ký</a> để tiếp tục.</p>
+        <% } %>
