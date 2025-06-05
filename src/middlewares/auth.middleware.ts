@@ -1,23 +1,33 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-
+import { RecaptchaV2 } from 'express-recaptcha';
 export interface AuthRequest extends Request {
     user?: { id: string; roleId: number };
 }
-
 export const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
-    const token = req.cookies.accessToken;
+    let token = req.cookies.accessToken;
+
+    // Lấy token từ header Authorization nếu không có trong cookie
+    const authHeader = req.headers.authorization;
+    if (!token && authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.split(' ')[1]; // Lấy token từ "Bearer <token>"
+    }
+
     if (!token) {
         return res.redirect('/users/login');
     }
 
-    jwt.verify(token, 'weak-secret', (err: any, user: any) => {
-        if (err) {
+    // Sử dụng jwt.decode thay vì jwt.verify
+    try {
+        const decoded = jwt.decode(token, { complete: true });
+        if (!decoded) {
             return res.redirect('/users/login');
         }
-        (req as AuthRequest).user = user;
+        (req as AuthRequest).user = decoded.payload;
         next();
-    });
+    } catch (error) {
+        return res.redirect('/users/login');
+    }
 };
 
 export const restrictTo = (...allowedRoles: number[]) => {
@@ -29,3 +39,19 @@ export const restrictTo = (...allowedRoles: number[]) => {
         next();
     };
 };
+
+export const recaptcha = new RecaptchaV2('6LeSTjMrAAAAALEWLhBDVD4d8WbkjJ36CItkZevZ', '6LeSTjMrAAAAAEoEqA67-iBKxcy7h73jhaDzC2as');
+
+// Middleware kiểm tra CAPTCHA
+export const verifyCaptcha = (req: Request, res: Response, next: NextFunction): void => {
+    recaptcha.middleware.verify(req, res, (err: string | null) => {
+        if (err) {
+            return res.status(400).render('pages/login', {
+                title: 'Đăng nhập',
+                error: 'Xác minh CAPTCHA thất bại!'
+            });
+        }
+        next();
+    });
+};
+

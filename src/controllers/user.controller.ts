@@ -2,18 +2,28 @@ import { Request, Response } from 'express';
 import * as userService from '../services/user.service';
 import { AuthRequest } from '../middlewares/auth.middleware';
 import { IUser } from '@/models/user.model';
+import winston from 'winston';
 export const getLogin = (req: Request, res: Response) => {
     res.render('pages/login', { title: 'Đăng nhập', error: null, user: null });
 };
+const logger = winston.createLogger({
+    level: 'info',
+    format: winston.format.json(),
+    transports: [
+        new winston.transports.File({ filename: 'security.log' })
+    ]
+});
 
 export const postLogin = async (req: Request, res: Response) => {
     try {
         const { email, password } = req.body;
-        const { accessToken, refreshToken, user } = await userService.loginUser(email, password);
+        const { accessToken, refreshToken } = await userService.loginUser(email, password);
         res.cookie('accessToken', accessToken);
         res.cookie('refreshToken', refreshToken);
+        logger.info(`Đăng nhập thành công - Email: ${email}, IP: ${req.ip}, Thời gian: ${new Date()}`);
         res.redirect('/books');
     } catch (error: any) {
+        logger.error(`Đăng nhập thất bại - Email: ${req.body.email}, IP: ${req.ip}, Lỗi: ${error.message}, Thời gian: ${new Date()}`);
         res.render('pages/login', { title: 'Đăng nhập', error: error.message, user: null });
     }
 };
